@@ -90,15 +90,12 @@ def registerPassword():
 def registerNickname():
     received = request.get_json()
     input_nickname = received['nickname']
-    select_query = "SELECT * FROM users WHERE nickname = " + input_nickname
-    db_nickname = loadData(0, select_query)
-    
-    return db_nickname
-    
-    # if input_nickname == db_nickname:
-    #     return "Nickname Duplicate"
-    # else:
-    #     return "Available Nickname"
+    select_query = "SELECT nickname FROM users WHERE nickname = '" + input_nickname + "'"
+    db_nickname = loadData(0, select_query)   
+    if input_nickname == db_nickname:
+        return "Duplicate Nickname"
+    else:
+        return "Available Nickname"
     
     
 #회원가입/회원정보 저장
@@ -115,24 +112,32 @@ def register():
     return result
     
 
-# #로그인
+#로그인
 @app.route('/user/login', methods = ['POST'])
 def login():
     received = request.get_json()
     input_email = received['email']
     input_password = received['password']
-    select_query = "SELECT email, hashed_password FROM users WHERE email = " + input_email
-    login_data = loadData(1, select_query)
-    
-    return login_data
-    
+    select_query = "SELECT email, hashed_password FROM users WHERE email = '" + input_email + "'"
+    login_data = list(loadData(1, select_query))
+    user_data = []
+    user_data.append(input_email)
+    user_data.append(input_password)
+    # if str(login_data[0]) == str(user_data[0]):
+    #     if str(login_data[1]) == str(user_data[1]):
+    #         return "Login Success"
+    #     else:
+    #         return "Check Password"
+    # else:
+    #     return "Check Email or Password"
+
     
 #환경소식
 @app.route('/main/news', methods = ['GET'])
 def news():
     select_query = "SELECT title, url FROM news"
-    data = list(loadData(1, select_query))
-    return data
+    data = loadData(1, select_query)
+    return jsonify(data), 
     
     
 if __name__ == "__main__":
