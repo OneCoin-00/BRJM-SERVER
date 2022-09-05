@@ -73,16 +73,12 @@ def EmailVerification():
 def registerPassword():
     received = request.get_json()
     input_password = received['password']
-    user_password = []
-    user_password.append(input_password)
     
-    return user_password
+    #비밀번호 암호화
+    hashed_password = bcrypt.generate_password_hash(input_password)
+    bcrypt.check_password_hash(hashed_password, input_password)
     
-    # #비밀번호 암호화
-    # hashed_password = bcrypt.generate_password_hash(user_password)
-    # bcrypt.check_password_hash(hashed_password, user_password)
-    
-    # return hashed_password
+    return hashed_password
     
     
 #회원가입/닉네임 & 카테고리
@@ -118,26 +114,25 @@ def login():
     received = request.get_json()
     input_email = received['email']
     input_password = received['password']
+    dict_key = ['email', 'hashed_password']
     select_query = "SELECT email, hashed_password FROM users WHERE email = '" + input_email + "'"
-    login_data = list(loadData(1, select_query))
+    login_data = dict(zip(dict_key,(loadData(1, select_query))))
     user_data = []
     user_data.append(input_email)
     user_data.append(input_password)
-    # if str(login_data[0]) == str(user_data[0]):
-    #     if str(login_data[1]) == str(user_data[1]):
-    #         return "Login Success"
-    #     else:
-    #         return "Check Password"
+    user_dict = dict(zip(dict_key, user_data))
+    # if login_data == user_data:
+    #     return "Login Success"
     # else:
     #     return "Check Email or Password"
-
+    return user_data
     
 #환경소식
 @app.route('/main/news', methods = ['GET'])
 def news():
     select_query = "SELECT title, url FROM news"
     data = loadData(1, select_query)
-    return jsonify(data), 
+    return jsonify(data)
     
     
 if __name__ == "__main__":
